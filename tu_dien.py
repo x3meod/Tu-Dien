@@ -17,7 +17,72 @@ class Translatorapp:
 
         self.khoi_tao_db()
         self.tao_giao_dien()
+    def them_tu_can_hoc(self):
+        tu_goc = self.txt_input.get("1.0", "end-1c").strip()
+        nghia = self.ketq_output.get("1.0", "end-1c").strip()
 
+        if not tu_goc or not nghia:
+            messagebox.showwarning(
+                "Cảnh báo",
+                "Hãy tra một từ trước!"
+            )
+            return
+
+        try:
+            # Kiểm tra xem từ đã tồn tại chưa
+            self.cursor.execute("""
+                SELECT id
+                FROM tu_can_hoc
+                WHERE tu_goc = ? AND nghia = ?
+            """, (tu_goc, nghia))
+
+            if self.cursor.fetchone():
+                messagebox.showinfo(
+                    "Thông báo",
+                    f"'{tu_goc}' đã có trong danh sách từ cần học!"
+                )
+                return
+
+            # Thêm từ mới
+            self.cursor.execute("""
+                INSERT INTO tu_can_hoc (tu_goc, nghia)
+                VALUES (?, ?)
+            """, (tu_goc, nghia))
+
+            self.conn.commit()
+
+            messagebox.showinfo(
+                "Thành công",
+                f"Đã thêm '{tu_goc}' vào danh sách từ cần học!"
+            )
+
+        except Exception as e:
+            messagebox.showerror(
+                "Lỗi",
+                f"Không thể thêm từ: {e}"
+            )
+    def hoc_tu_ngau_nhien(self):
+        self.cursor.execute("""
+            SELECT tu_goc, nghia
+            FROM tu_can_hoc
+            ORDER BY RANDOM()
+            LIMIT 1
+        """)
+
+        row = self.cursor.fetchone()
+
+        if row:
+            tu_goc, nghia = row
+
+            messagebox.showinfo(
+                "Từ ngẫu nhiên",
+                f"Từ: {tu_goc}\n\nNghĩa: {nghia}"
+            )
+        else:
+            messagebox.showinfo(
+                "Thông báo",
+                "Chưa có từ nào trong danh sách cần học!"
+            )
     def khoi_tao_db(self):
         self.conn = sqlite3.connect("tudien.db")
         self.cursor= self.conn.cursor()
@@ -66,6 +131,10 @@ class Translatorapp:
         self.tu_vung_menu.add_command(
             label="Quản lý / Xóa từ", command=self.mo_cua_so_quan_ly
         )
+        self.tu_vung_menu.add_command(
+        label="Từ cần học",
+        command=self.mo_cua_so_tu_can_hoc
+        )
         self.main_menubar.add_cascade(
             label="Tùy chọn", menu=self.tu_vung_menu
         )
@@ -104,6 +173,15 @@ class Translatorapp:
 
         self.ketq_output = Text(self.window, height=5, width=45)
         self.ketq_output.pack(pady=5)
+
+        self.btn_them_hoc = Button(
+        self.window,
+            text="📚 Thêm vào từ cần học",
+            command=self.them_tu_can_hoc,
+            bg="#28a745",
+            fg="white"
+        )
+        self.btn_them_hoc.pack(pady=5)
 
     def mo_cua_so_them_tu(self):
         self.cua_so_them = Toplevel(self.window)
@@ -173,7 +251,55 @@ class Translatorapp:
             messagebox.showerror(
                 "Lỗi", f"Không thể lưu từ: {e}", parent=self.cua_so_them
             )
+    def mo_cua_so_tu_can_hoc(self):
+        self.cua_so_hoc = Toplevel(self.window)
+        self.cua_so_hoc.geometry("550x400")
+        self.cua_so_hoc.title("Từ cần học")
 
+        columns = ("id", "tu_goc", "nghia", "muc_do")
+
+        self.tree_hoc = ttk.Treeview(
+            self.cua_so_hoc,
+            columns=columns,
+            show="headings"
+        )
+
+        self.tree_hoc.heading("id", text="ID")
+        self.tree_hoc.heading("tu_goc", text="Từ")
+        self.tree_hoc.heading("nghia", text="Nghĩa")
+        self.tree_hoc.heading("muc_do", text="Mức độ")
+
+        self.tree_hoc.column("id", width=50)
+        self.tree_hoc.column("tu_goc", width=150)
+        self.tree_hoc.column("nghia", width=250)
+        self.tree_hoc.column("muc_do", width=80)
+
+        self.tree_hoc.pack(
+            fill=BOTH,
+            expand=True,
+            padx=10,
+            pady=10
+        )
+
+        self.cursor.execute("""
+            SELECT id, tu_goc, nghia, muc_do
+            FROM tu_can_hoc
+            ORDER BY id DESC
+        """)
+
+        rows = self.cursor.fetchall()
+
+        for row in rows:
+            self.tree_hoc.insert(
+                "",
+                END,
+                values=row)
+        btn_random = Button(
+        self.cua_so_hoc,
+        text="🎲 Học từ ngẫu nhiên",
+        command=self.hoc_tu_ngau_nhien,
+        bg="#ffc107")
+        btn_random.pack(pady=10)
     def mo_cua_so_quan_ly(self):
         self.cua_so_ql = Toplevel(self.window)
         self.cua_so_ql.geometry("550x400")
@@ -216,7 +342,7 @@ class Translatorapp:
             fg="white",
         )
         btn_xoa.pack(pady=10)
-
+    
         # Tải danh sách từ ban đầu
         self.cap_nhat_danh_sach_tu()
 
