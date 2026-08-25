@@ -63,7 +63,7 @@ class Translatorapp:
             )
     def hoc_tu_ngau_nhien(self):
         self.cursor.execute("""
-            SELECT tu_goc, nghia
+            SELECT id, tu_goc, nghia
             FROM tu_can_hoc
             ORDER BY RANDOM()
             LIMIT 1
@@ -71,18 +71,65 @@ class Translatorapp:
 
         row = self.cursor.fetchone()
 
-        if row:
-            tu_goc, nghia = row
-
-            messagebox.showinfo(
-                "Từ ngẫu nhiên",
-                f"Từ: {tu_goc}\n\nNghĩa: {nghia}"
-            )
-        else:
+        if not row:
             messagebox.showinfo(
                 "Thông báo",
                 "Chưa có từ nào trong danh sách cần học!"
             )
+            return
+
+        self.tu_hoc_id = row[0]
+        self.tu_hoc = row[1]
+        self.nghia_hoc = row[2]
+
+        self.cua_so_quiz = Toplevel(self.window)
+        self.cua_so_quiz.geometry("400x300")
+        self.cua_so_quiz.title("Học từ vựng")
+
+        Label(
+            self.cua_so_quiz,
+            text="🎲 TỪ VỰNG",
+            font=("Arial", 16, "bold")
+        ).pack(pady=20)
+
+        Label(
+            self.cua_so_quiz,
+            text=self.tu_hoc,
+            font=("Arial", 20, "bold")
+        ).pack(pady=10)
+
+        self.lbl_nghia = Label(
+            self.cua_so_quiz,
+            text="???",
+            font=("Arial", 14)
+        )
+        self.lbl_nghia.pack(pady=20)
+
+        btn_hien_nghia = Button(
+            self.cua_so_quiz,
+            text="👀 Hiện nghĩa",
+            command=self.hien_nghia_tu_hoc,
+            bg="#17a2b8",
+            fg="white"
+        )
+        btn_hien_nghia.pack(pady=5)
+
+        btn_tiep = Button(
+            self.cua_so_quiz,
+            text="🎲 Từ tiếp theo",
+            command=self.tiep_tu_hoc,
+            bg="#ffc107"
+        )
+        btn_tiep.pack(pady=5)
+    def hien_nghia_tu_hoc(self):
+        self.lbl_nghia.config(
+            text=f"Nghĩa: {self.nghia_hoc}"
+        )
+
+
+    def tiep_tu_hoc(self):
+        self.cua_so_quiz.destroy()
+        self.hoc_tu_ngau_nhien()
     def khoi_tao_db(self):
         self.conn = sqlite3.connect("tudien.db")
         self.cursor= self.conn.cursor()
@@ -521,4 +568,4 @@ if __name__ == "__main__":
 # import cai file tu dien vao database
 # them ds tu yeu thich
 # them h/a
-# chuc nang them tu can hoc hom nay(them chuc nang random de lam)
+# chuc nang them tu can hoc hom nay(them chuc nang random de la
