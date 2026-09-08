@@ -565,7 +565,3 @@ class Translatorapp:
 if __name__ == "__main__":
     app = Translatorapp()
     app.chay_ung_dung()
-# import cai file tu dien vao database
-# them ds tu yeu thich
-# them h/a
-# chuc nang them tu can hoc hom nay(them chuc nang random de la
