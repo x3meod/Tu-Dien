@@ -7,10 +7,18 @@ import os
 class Translatorapp:
     def __init__(self):
         self.window = Tk()
-        self.window.title("Từ Điển")
-        self.window.geometry("450x550")
+        self.window.title("📖 Từ Điển")
+        self.window.geometry("500x620")
 
+        self.window.configure(bg="#F4F7FB")
         self.window.protocol("WM_DELETE_WINDOW", self.khi_dong_ung_dung)
+
+        self.bg = "#F4F7FB"
+        self.card = "#FFFFFF"
+        self.text_color = "#1F2937"
+        self.blue = "#2563EB"
+        self.green = "#16A34A"
+        self.gray = "#6B7280"
 
         self.ngon_ngu_nguon = "en"
         self.ngon_ngu_dich = "vi"
@@ -85,23 +93,27 @@ class Translatorapp:
         self.cua_so_quiz = Toplevel(self.window)
         self.cua_so_quiz.geometry("400x300")
         self.cua_so_quiz.title("Học từ vựng")
+        self.cua_so_quiz.configure(bg=self.bg)
 
         Label(
             self.cua_so_quiz,
             text="🎲 TỪ VỰNG",
-            font=("Arial", 16, "bold")
+            font=("Arial", 16, "bold"),
+            bg=self.bg, fg=self.blue
         ).pack(pady=20)
 
         Label(
             self.cua_so_quiz,
             text=self.tu_hoc,
-            font=("Arial", 20, "bold")
+            font=("Arial", 20, "bold"),
+            bg=self.bg, fg=self.text_color
         ).pack(pady=10)
 
         self.lbl_nghia = Label(
             self.cua_so_quiz,
             text="???",
-            font=("Arial", 14)
+            font=("Arial", 14),
+            bg=self.bg, fg=self.gray
         )
         self.lbl_nghia.pack(pady=20)
 
@@ -109,8 +121,10 @@ class Translatorapp:
             self.cua_so_quiz,
             text="👀 Hiện nghĩa",
             command=self.hien_nghia_tu_hoc,
-            bg="#17a2b8",
-            fg="white"
+            bg="#0EA5A8",
+            fg="white",
+            activebackground="#0F8F91", activeforeground="white",
+            relief="flat", cursor="hand2"
         )
         btn_hien_nghia.pack(pady=5)
 
@@ -118,7 +132,10 @@ class Translatorapp:
             self.cua_so_quiz,
             text="🎲 Từ tiếp theo",
             command=self.tiep_tu_hoc,
-            bg="#ffc107"
+            bg="#F59E0B",
+            fg="white",
+            activebackground="#D97706", activeforeground="white",
+            relief="flat", cursor="hand2"
         )
         btn_tiep.pack(pady=5)
     def hien_nghia_tu_hoc(self):
@@ -179,61 +196,91 @@ class Translatorapp:
             label="Quản lý / Xóa từ", command=self.mo_cua_so_quan_ly
         )
         self.tu_vung_menu.add_command(
-        label="Từ cần học",
-        command=self.mo_cua_so_tu_can_hoc
+            label="Từ cần học", command=self.mo_cua_so_tu_can_hoc
         )
-        self.main_menubar.add_cascade(
-            label="Tùy chọn", menu=self.tu_vung_menu
-        )
-
+        self.main_menubar.add_cascade(label="Tùy chọn", menu=self.tu_vung_menu)
         self.window.config(menu=self.main_menubar)
 
+        # Tiêu đề
+        Label(
+            self.window, text="📖 TỪ ĐIỂN",
+            font=("Arial", 22, "bold"),
+            bg=self.bg, fg=self.blue
+        ).pack(pady=(18, 2))
+
+        Label(
+            self.window, text="Tra cứu từ vựng Anh - Việt",
+            font=("Arial", 10),
+            bg=self.bg, fg=self.gray
+        ).pack(pady=(0, 12))
+
         self.nhap_input = Label(
-            self.window, text="Văn bản cần dịch: Tiếng Anh"
+            self.window, text="Văn bản cần dịch: Tiếng Anh",
+            font=("Arial", 10, "bold"),
+            bg=self.bg, fg=self.text_color
         )
         self.nhap_input.pack(pady=5)
 
-        self.txt_input = Text(self.window, height=5, width=45)
-        self.txt_input.pack(pady=5)
+        self.txt_input = Text(
+            self.window, height=5, width=45,
+            font=("Arial", 11),
+            bg=self.card, fg=self.text_color,
+            insertbackground=self.text_color,
+            relief="solid", bd=1, padx=8, pady=8
+        )
+        self.txt_input.pack(pady=5, padx=20, fill=X)
 
         self.btn_swap = Button(
-            self.window,
-            text="🔄 Đổi chiều dịch",
+            self.window, text="🔄 Đổi chiều dịch",
             command=self.doi_chieu,
-            bg="#5f6368",
-            fg="white",
+            bg="#6B7280", fg="white",
+            activebackground="#4B5563", activeforeground="white",
+            font=("Arial", 10, "bold"),
+            relief="flat", padx=14, pady=6, cursor="hand2"
         )
-        self.btn_swap.pack(pady=5)
+        self.btn_swap.pack(pady=6)
 
         self.btn_dich = Button(
-            self.window,
-            text="Tra từ / Dịch",
+            self.window, text="🔍  Tra từ / Dịch",
             command=self.dich_van_ban,
-            bg="#1a73e8",
-            fg="white",
-            font=("Arial", 10, "bold"),
+            bg=self.blue, fg="white",
+            activebackground="#1D4ED8", activeforeground="white",
+            font=("Arial", 11, "bold"),
+            relief="flat", padx=18, pady=8, cursor="hand2"
         )
-        self.btn_dich.pack(pady=5)
+        self.btn_dich.pack(pady=6)
 
-        self.kq_output = Label(self.window, text="Kết quả: Tiếng Việt")
+        self.kq_output = Label(
+            self.window, text="Kết quả: Tiếng Việt",
+            font=("Arial", 10, "bold"),
+            bg=self.bg, fg=self.text_color
+        )
         self.kq_output.pack(pady=5)
 
-        self.ketq_output = Text(self.window, height=5, width=45)
-        self.ketq_output.pack(pady=5)
+        self.ketq_output = Text(
+            self.window, height=5, width=45,
+            font=("Arial", 11),
+            bg=self.card, fg=self.text_color,
+            insertbackground=self.text_color,
+            relief="solid", bd=1, padx=8, pady=8
+        )
+        self.ketq_output.pack(pady=5, padx=20, fill=X)
 
         self.btn_them_hoc = Button(
-        self.window,
-            text="📚 Thêm vào từ cần học",
+            self.window, text="📚 Thêm vào từ cần học",
             command=self.them_tu_can_hoc,
-            bg="#28a745",
-            fg="white"
+            bg=self.green, fg="white",
+            activebackground="#15803D", activeforeground="white",
+            font=("Arial", 10, "bold"),
+            relief="flat", padx=14, pady=7, cursor="hand2"
         )
-        self.btn_them_hoc.pack(pady=5)
+        self.btn_them_hoc.pack(pady=8)
 
     def mo_cua_so_them_tu(self):
         self.cua_so_them = Toplevel(self.window)
         self.cua_so_them.geometry("380x320")
         self.cua_so_them.title("Thêm từ mới")
+        self.cua_so_them.configure(bg=self.bg)
 
         Label(self.cua_so_them, text="Từ gốc:").pack(pady=(10, 2))
         self.entry_tu_goc = Entry(self.cua_so_them, width=35)
@@ -302,6 +349,7 @@ class Translatorapp:
         self.cua_so_hoc = Toplevel(self.window)
         self.cua_so_hoc.geometry("550x400")
         self.cua_so_hoc.title("Từ cần học")
+        self.cua_so_hoc.configure(bg=self.bg)
 
         columns = ("id", "tu_goc", "nghia", "muc_do")
 
@@ -351,6 +399,7 @@ class Translatorapp:
         self.cua_so_ql = Toplevel(self.window)
         self.cua_so_ql.geometry("550x400")
         self.cua_so_ql.title("Quản lý & Xóa từ vựng")
+        self.cua_so_ql.configure(bg=self.bg)
 
         # Khung tìm kiếm
         frame_search = Frame(self.cua_so_ql)
@@ -526,6 +575,7 @@ class Translatorapp:
         self.cua_so_phu = Toplevel(self.window)
         self.cua_so_phu.geometry("500x300")
         self.cua_so_phu.title("Lịch sử từ vựng (SQLite3)")
+        self.cua_so_phu.configure(bg=self.bg)
 
         self.txt_lich_su = Text(self.cua_so_phu)
         self.txt_lich_su.pack(fill=BOTH, expand=True)
