@@ -69,6 +69,49 @@ class Translatorapp:
                 "Lỗi",
                 f"Không thể thêm từ: {e}"
             )
+    def xoa_tu_can_hoc(self):
+        selected_item = self.tree_hoc.selection()
+
+        if not selected_item:
+            messagebox.showwarning(
+                "Cảnh báo",
+                "Vui lòng chọn một từ để xóa!",
+                parent=self.cua_so_hoc
+            )
+            return
+
+        item_data = self.tree_hoc.item(selected_item[0])
+        tu_id = item_data["values"][0]
+        tu_goc = item_data["values"][1]
+
+        xac_nhan = messagebox.askyesno(
+            "Xác nhận",
+            f"Bạn có chắc muốn xóa '{tu_goc}' khỏi danh sách từ cần học?",
+            parent=self.cua_so_hoc
+        )
+
+        if xac_nhan:
+            try:
+                self.cursor.execute(
+                    "DELETE FROM tu_can_hoc WHERE id = ?",
+                    (tu_id,)
+                )
+                self.conn.commit()
+
+                self.tree_hoc.delete(selected_item[0])
+
+                messagebox.showinfo(
+                    "Thành công",
+                    f"Đã xóa '{tu_goc}' khỏi danh sách từ cần học!",
+                    parent=self.cua_so_hoc
+                )
+
+            except Exception as e:
+                messagebox.showerror(
+                    "Lỗi",
+                    f"Không thể xóa từ: {e}",
+                    parent=self.cua_so_hoc
+                )
     def hoc_tu_ngau_nhien(self):
         self.cursor.execute("""
             SELECT id, tu_goc, nghia
@@ -395,6 +438,14 @@ class Translatorapp:
         command=self.hoc_tu_ngau_nhien,
         bg="#ffc107")
         btn_random.pack(pady=10)
+        btn_xoa = Button(
+            self.cua_so_hoc,
+            text="❌ Xóa từ đang chọn",
+            command=self.xoa_tu_can_hoc,
+            bg="#dc3545",
+            fg="white"
+        )
+        btn_xoa.pack(pady=5)
     def mo_cua_so_quan_ly(self):
         self.cua_so_ql = Toplevel(self.window)
         self.cua_so_ql.geometry("550x400")
